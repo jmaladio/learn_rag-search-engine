@@ -14,7 +14,7 @@ def normalize_text(text: str) -> str:
     exclusion_table = str.maketrans('', '', string.punctuation)
     return text.casefold().translate(exclusion_table)
 
-def tokenize(value: str) -> list[str]:
+def tokenize_text(value: str) -> list[str]:
     """
     Tokenizes a string into a list of words.
 

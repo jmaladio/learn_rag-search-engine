@@ -1,6 +1,7 @@
 import argparse
-import json
-from lib.text_processing import normalize_text, tokenize, remove_stopwords, stem_words
+from lib.data_loader import load_movies
+from lib.text_processing import normalize_text, tokenize_text, remove_stopwords, stem_words
+from lib.inverted_index import InvertedIndex
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Keyword Search CLI")
@@ -9,34 +10,36 @@ def main() -> None:
     search_parser = subparsers.add_parser("search", help="Search movies using keywords")
     search_parser.add_argument("query", type=str, help="Search query")
 
+    build_parser = subparsers.add_parser("build", help="Build the inverted index")
+
     args = parser.parse_args()
 
     match args.command:
         case "search":
-            with open("data/movies.json", "r") as f:
-                data = json.load(f)
+            try:
+                index = InvertedIndex()
+                index.load()
+            except Exception as e:
+                print(f"Error loading index: {e}")
+                return
 
-            movies = data["movies"] if isinstance(data, dict) else data
-
-            query = stem_words(remove_stopwords(tokenize(normalize_text(args.query))))
+            query = stem_words(remove_stopwords(tokenize_text(normalize_text(args.query))))
             print(f"Normalized query: {query}")
 
             result = []
-
-            for movie in movies:
-                title = movie.get("title", "")
-                normalized_title = stem_words(remove_stopwords(tokenize(normalize_text(title))))
-                if any(
-                    query_word in title_word
-                    for query_word in query
-                    for title_word in normalized_title
-                ):
-                    result.append(movie)
+            for term in query:
+                result.extend(index.add_documents(term))
+                if len(result) == 5:
+                    break
 
             print(f"Searching for: {args.query}")
 
-            for count, movie in enumerate(result[:5], start=1):
-                print(f"{count}. {movie['title']}")
+            for movie in result:
+                print(f"Movie ID: {movie}, Title: {index.docmap[movie]['title']}")
+        case "build":
+            inverted_index = InvertedIndex()
+            inverted_index.build()
+            inverted_index.save()
         case _:
             parser.print_help()
 
