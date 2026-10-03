@@ -7,6 +7,8 @@ class InvertedIndex:
     def __init__(self):
         self.index = {}
         self.docmap = {}
+        # Maps IDs to Counter objects
+        self.term_frequencies = {}
 
     def __add_document(self, doc_id: int, text: str) -> None:
         """
@@ -19,12 +21,13 @@ class InvertedIndex:
         Returns:
             None
         """
-
-        tokens = stem_words(remove_stopwords(tokenize_text((normalize_text(text)))))
+        tokens = stem_words(remove_stopwords(tokenize_text(normalize_text(text))))
         for token in tokens:
             if token not in self.index:
                 self.index[token] = set()
+                self.term_frequencies[token] = {}
             self.index[token].add(doc_id)
+            self.term_frequencies[token][doc_id] = self.term_frequencies[token].get(doc_id, 0) + 1
 
     def add_documents(self, term: str) -> list[int]:
         """
@@ -68,6 +71,7 @@ class InvertedIndex:
         os.makedirs("cache", exist_ok=True)
         pickle.dump(self.index, open("cache/index.pkl", "wb"))
         pickle.dump(self.docmap, open("cache/docmap.pkl", "wb"))
+        pickle.dump(self.term_frequencies, open("cache/term_frequencies.pkl", "wb"))
 
     def load(self) -> None:
         """
@@ -79,9 +83,23 @@ class InvertedIndex:
         try:
             self.index = pickle.load(open("cache/index.pkl", "rb"))
             self.docmap = pickle.load(open("cache/docmap.pkl", "rb"))
+            self.term_frequencies = pickle.load(open("cache/term_frequencies.pkl", "rb"))
         except FileNotFoundError:
             print("Index or docmap file not found. Please build the index first.")
             self.index = {}
             self.docmap = {}
+            self.term_frequencies = {}
+
+    def get_tf(self, doc_id:int, term:str) -> int:
+        """
+        Get the term frequency of a term in a specific document.
+
+        Args:
+            doc_id (int): The unique identifier for the document.
+            term (str): The token to be searched in the document.
+        Returns:
+            int: The term frequency of the term in the specified document.
+        """
+        return self.term_frequencies.get(term, {}).get(doc_id, 0)
 
     

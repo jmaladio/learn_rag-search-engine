@@ -1,6 +1,6 @@
 import argparse
 from lib.data_loader import load_movies
-from lib.text_processing import normalize_text, tokenize_text, remove_stopwords, stem_words
+from lib.text_processing import normalize_text, tokenize_and_normalize, tokenize_text, remove_stopwords, stem_words
 from lib.inverted_index import InvertedIndex
 
 def main() -> None:
@@ -11,6 +11,10 @@ def main() -> None:
     search_parser.add_argument("query", type=str, help="Search query")
 
     build_parser = subparsers.add_parser("build", help="Build the inverted index")
+
+    tf_parser = subparsers.add_parser("tf", help="Get term frequency for a term in a document")
+    tf_parser.add_argument("doc_id", type=int, help="The document ID to search in")
+    tf_parser.add_argument("term", type=str, help="The term to search for")
 
     args = parser.parse_args()
 
@@ -40,6 +44,19 @@ def main() -> None:
             inverted_index = InvertedIndex()
             inverted_index.build()
             inverted_index.save()
+        case "tf":
+            try:
+                tokenized_term = tokenize_and_normalize(args.term)
+                inverted_index = InvertedIndex()
+                inverted_index.load()
+                freq = inverted_index.get_tf(args.doc_id, tokenized_term)
+                if freq is not None:
+                    print(f"{freq}")
+                else:
+                    print(0)
+            except Exception as e:
+                print(f"Error loading index: {e}")
+                return
         case _:
             parser.print_help()
 

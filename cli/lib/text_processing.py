@@ -51,3 +51,19 @@ def stem_words(tokens: list[str]) -> list[str]:
     """
     stemmer = PorterStemmer()
     return [stemmer.stem(token) for token in tokens]
+
+def tokenize_and_normalize(term: str) -> str:
+    """
+    Normalize the input term and then use text processing helper functions on the input term.
+
+    Args:
+        term (str): The term to normalize and tokenize.
+    Returns:
+        str: A normalized and tokenized term.
+    """
+    new_text = stem_words(remove_stopwords(tokenize_text(normalize_text(term))))
+
+    if len(new_text) != 1:
+        raise ValueError("The text should tokenize to a single token after normalization.")
+
+    return new_text[0]
