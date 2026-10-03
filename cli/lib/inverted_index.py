@@ -29,7 +29,7 @@ class InvertedIndex:
             self.index[token].add(doc_id)
             self.term_frequencies[token][doc_id] = self.term_frequencies[token].get(doc_id, 0) + 1
 
-    def add_documents(self, term: str) -> list[int]:
+    def get_documents(self, term: str) -> list[int]:
         """
         Get the document IDs associated to the given term
         and return them as a sorted list in ascending order

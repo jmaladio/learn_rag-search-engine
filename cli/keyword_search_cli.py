@@ -40,7 +40,7 @@ def main() -> None:
 
             result = []
             for term in query:
-                result.extend(index.add_documents(term))
+                result.extend(index.get_documents(term))
                 if len(result) == 5:
                     break
 
@@ -70,7 +70,7 @@ def main() -> None:
                 inverted_index = InvertedIndex()
                 inverted_index.load()
                 tokenized_term = tokenize_and_normalize(args.term)
-                idf_score = math.log((inverted_index.docmap.__len__() + 1) / (len(inverted_index.add_documents(tokenized_term)) + 1))
+                idf_score = math.log((inverted_index.docmap.__len__() + 1) / (len(inverted_index.get_documents(tokenized_term)) + 1))
                 print(f"Inverse document frequency of '{args.term}': {idf_score:.2f}")
             except Exception as e:
                 print(f"Error calculating IDF: {e}")
@@ -81,7 +81,7 @@ def main() -> None:
                 inverted_index.load()
                 tokenized_term = tokenize_and_normalize(args.term)
                 tf = inverted_index.get_tf(args.doc_id, tokenized_term)
-                idf_score = math.log((inverted_index.docmap.__len__() + 1) / (len(inverted_index.add_documents(tokenized_term)) + 1))
+                idf_score = math.log((inverted_index.docmap.__len__() + 1) / (len(inverted_index.get_documents(tokenized_term)) + 1))
                 tfidf_score = tf * idf_score
                 print(f"TF-IDF score of '{args.term}' in document '{args.doc_id}': {tfidf_score:.2f}")
             except Exception as e:
