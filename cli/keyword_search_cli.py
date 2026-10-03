@@ -1,4 +1,5 @@
 import argparse
+import math
 from lib.data_loader import load_movies
 from lib.text_processing import normalize_text, tokenize_and_normalize, tokenize_text, remove_stopwords, stem_words
 from lib.inverted_index import InvertedIndex
@@ -15,6 +16,9 @@ def main() -> None:
     tf_parser = subparsers.add_parser("tf", help="Get term frequency for a term in a document")
     tf_parser.add_argument("doc_id", type=int, help="The document ID to search in")
     tf_parser.add_argument("term", type=str, help="The term to search for")
+
+    idf_parser = subparsers.add_parser("idf", help="Get inverse document frequency for a term")
+    idf_parser.add_argument("term", type=str, help="The term to search for")
 
     args = parser.parse_args()
 
@@ -56,6 +60,16 @@ def main() -> None:
                     print(0)
             except Exception as e:
                 print(f"Error loading index: {e}")
+                return
+        case "idf":
+            try:
+                inverted_index = InvertedIndex()
+                inverted_index.load()
+                tokenized_term = tokenize_and_normalize(args.term)
+                idf_score =math.log((inverted_index.docmap.__len__() + 1) / (len(inverted_index.add_documents(tokenized_term)) + 1))
+                print(f"Inverse document frequency of '{args.term}': {idf_score:.2f}")
+            except Exception as e:
+                print(f"Error calculating IDF: {e}")
                 return
         case _:
             parser.print_help()
