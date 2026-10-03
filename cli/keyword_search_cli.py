@@ -20,6 +20,10 @@ def main() -> None:
     idf_parser = subparsers.add_parser("idf", help="Get inverse document frequency for a term")
     idf_parser.add_argument("term", type=str, help="The term to search for")
 
+    tfidf_parser = subparsers.add_parser("tfidf", help="Get TF-IDF score for a term in a document")
+    tfidf_parser.add_argument("doc_id", type=int, help="The document ID to search in")
+    tfidf_parser.add_argument("term", type=str, help="The term to search for")
+
     args = parser.parse_args()
 
     match args.command:
@@ -66,10 +70,22 @@ def main() -> None:
                 inverted_index = InvertedIndex()
                 inverted_index.load()
                 tokenized_term = tokenize_and_normalize(args.term)
-                idf_score =math.log((inverted_index.docmap.__len__() + 1) / (len(inverted_index.add_documents(tokenized_term)) + 1))
+                idf_score = math.log((inverted_index.docmap.__len__() + 1) / (len(inverted_index.add_documents(tokenized_term)) + 1))
                 print(f"Inverse document frequency of '{args.term}': {idf_score:.2f}")
             except Exception as e:
                 print(f"Error calculating IDF: {e}")
+                return
+        case "tfidf":
+            try:
+                inverted_index = InvertedIndex()
+                inverted_index.load()
+                tokenized_term = tokenize_and_normalize(args.term)
+                tf = inverted_index.get_tf(args.doc_id, tokenized_term)
+                idf_score = math.log((inverted_index.docmap.__len__() + 1) / (len(inverted_index.add_documents(tokenized_term)) + 1))
+                tfidf_score = tf * idf_score
+                print(f"TF-IDF score of '{args.term}' in document '{args.doc_id}': {tfidf_score:.2f}")
+            except Exception as e:
+                print(f"Error calculating TF-IDF: {e}")
                 return
         case _:
             parser.print_help()
