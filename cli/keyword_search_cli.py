@@ -4,7 +4,7 @@ from lib.data_loader import load_movies
 from lib.text_processing import normalize_text, tokenize_and_normalize, tokenize_text, remove_stopwords, stem_words
 from lib.inverted_index import InvertedIndex
 from lib.commands import bm25_idf_command, bm25_tf_command
-from lib.constants import BM25_K1
+from lib.constants import BM25_K1, BM25_B, BM25_LIMIT
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Keyword Search CLI")
@@ -37,6 +37,18 @@ def main() -> None:
     bm25_tf_parser.add_argument(
         "k1", type=float, nargs="?", default=BM25_K1, help="Tunable BM25 K1 parameter"
     )
+    bm25_tf_parser.add_argument(
+        "b", type=float, nargs="?", default=BM25_B, help="Tunable BM25 b parameter"
+    )
+
+    bm25search_parser = subparsers.add_parser(
+        "bm25search", help="Search movies using full BM25 scoring"
+    )
+    bm25search_parser.add_argument("query", type=str, help="Search query")
+    bm25search_parser.add_argument(
+        "limit", type=int, nargs="?", default=BM25_LIMIT, help="Maximum number of results to return"
+    )
+
     args = parser.parse_args()
 
     match args.command:
@@ -109,11 +121,24 @@ def main() -> None:
                 return
         case "bm25tf":
             try:
-                bm25_tf = bm25_tf_command(args.doc_id, args.term, args.k1)
+                bm25_tf = bm25_tf_command(args.doc_id, args.term, args.k1, args.b)
                 print(f"BM25 TF score of '{args.term}' in document '{args.doc_id}': {bm25_tf:.2f}")
             except Exception as e:
                 print(f"Error calculating BM25 TF: {e}")
                 return
+        case "bm25search":
+            try:
+                inverted_index = InvertedIndex()
+                inverted_index.load()
+                result = inverted_index.bm25_search(args.query, args.limit)
+                count = 1
+                for doc_id, score in result:
+                    print(f"{count}. ({inverted_index.docmap[doc_id]['id']}) {inverted_index.docmap[doc_id]['title']} - Score: {score:.2f}")
+                    count += 1
+            except Exception as e:
+                print(f"Error searching with BM25: {e}")
+                return
+
         case _:
             parser.print_help()
 

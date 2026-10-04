@@ -19,12 +19,12 @@ def bm25_idf_command(term: str) -> float:
         print(f"Error calculating IDF: {e}")
         return 0.0
 
-def bm25_tf_command(doc_id:int, term:str, k1:float) -> float:
+def bm25_tf_command(doc_id:int, term:str, k1:float, b:float) -> float:
     try:
         inverted_index = InvertedIndex()
         inverted_index.load()
         tokenized_term = tokenize_and_normalize(term)
-        return inverted_index.get_bm25_tf(doc_id, tokenized_term, k1)
+        return inverted_index.get_bm25_tf(doc_id, tokenized_term, k1, b)
     except Exception as e:
         print(f"Error calculating BM25 TF: {e}")
         return 0.0
