@@ -1,7 +1,9 @@
 from lib.text_processing import normalize_text, tokenize_text, remove_stopwords, stem_words
 from lib.data_loader import load_movies
+from lib.constants import BM25_K1
 import pickle
 import os
+import math
 
 class InvertedIndex:
     def __init__(self):
@@ -102,4 +104,20 @@ class InvertedIndex:
         """
         return self.term_frequencies.get(term, {}).get(doc_id, 0)
 
+    def get_bm25_idf(self, term:str) -> float:
+        """
+        Get the term score in the collection using the BM25 ranking system
+
+        Args:
+            term (str): The token to be searched in the collection
+        Returns:
+            float: The score of the term
+        """
+        n = self.docmap.__len__()
+        df = self.get_documents(term).__len__()
+        return math.log((n - df + 0.5) / (df + 0.5) + 1)
+
+    def get_bm25_tf(self, doc_id:int, term:str, k1:float = BM25_K1) -> float:
+        raw_tf = self.get_tf(doc_id, term)
+        return (raw_tf * (k1 + 1)) / (raw_tf + k1)
     
