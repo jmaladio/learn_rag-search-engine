@@ -17,7 +17,7 @@ $$
 \operatorname{tfidf}(t, d) = \operatorname{tf}(t, d) \times \operatorname{idf}(t)
 $$
 
-This chapter follows the course implementation from an inverted index through individual TF, IDF, and TF-IDF CLI queries. The current project exposes these values for inspection; its `search` command does not yet rank results by TF-IDF.
+This chapter follows the course implementation from an inverted index through individual TF, IDF, and TF-IDF CLI queries. The current project exposes these values for inspection. The basic `search` command remains unranked, while the separate `bm25search` command provides ranked multi-term BM25 retrieval.
 
 ## 1. Inverted Index
 
@@ -335,7 +335,7 @@ The implementation is intentionally inspectable. It exposes the intermediate val
 - It does not use field weighting for title versus description.
 - It does not calculate a multi-term score for a whole query.
 - It does not parse explicit Boolean operators.
-- It does not use BM25, a vector index, semantic embeddings, or a learned reranker.
+- It does not use TF-IDF to rank search results, vector indexes, semantic embeddings, or a learned reranker. BM25 is available through the `bm25idf`, `bm25tf`, and `bm25search` commands.
 - It does not attach cache version metadata.
 - It uses pickle files suitable for a trusted local exercise, not an untrusted service boundary.
 
