@@ -17,7 +17,7 @@ Full chapter content will be written as the corresponding course material is com
 | [01](01-preprocessing.md) | Preprocessing | Complete |
 | [02](02-tf-idf.md) | TF-IDF | Complete |
 | [03](03-keyword-search.md) | Keyword Search | Complete |
-| [04](04-semantic-search.md) | Semantic Search | Upcoming |
+| [04](04-semantic-search.md) | Semantic Search | Complete draft |
 | [05](05-chunking.md) | Chunking | Upcoming |
 | [06](06-hybrid-search.md) | Hybrid Search | Upcoming |
 | [07](07-llms.md) | LLMs | Upcoming |
